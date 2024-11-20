@@ -1,56 +1,85 @@
-let workoutTime, restTime, rounds, timer;
-let currentRound = 0;
+// Declare variables for the timer state
+let timerInterval;
+let currentRound = 1;
 let isWorkout = true;
 
-document.getElementById('start').addEventListener('click', () => {
-  workoutTime = parseInt(document.getElementById('work').value);
-  restTime = parseInt(document.getElementById('rest').value);
-  rounds = parseInt(document.getElementById('rounds').value);
-  currentRound = 0;
-  isWorkout = true;
-  startTimer(workoutTime);
-});
+// Function to start the timer
+function startTimer() {
+  // Get values from the input fields
+  const workTime = parseInt(document.getElementById('work').value);
+  const restTime = parseInt(document.getElementById('rest').value);
+  const totalRounds = parseInt(document.getElementById('rounds').value);
 
-function startTimer(duration) {
-  clearInterval(timer);
-  let remaining = duration;
+  // Display initial state
+  updateStatus("Workout", currentRound, totalRounds);
 
-  timer = setInterval(() => {
-    document.getElementById('timer').textContent = formatTime(remaining);
-    if (remaining <= 0) {
-      clearInterval(timer);
+  // Start the first phase
+  runTimer(workTime, restTime, totalRounds);
+}
+
+// Function to run the timer
+function runTimer(workTime, restTime, totalRounds) {
+  let timeRemaining = isWorkout ? workTime : restTime;
+
+  // Update the display
+  updateTimerDisplay(timeRemaining);
+
+  // Start the interval
+  timerInterval = setInterval(() => {
+    timeRemaining--;
+    updateTimerDisplay(timeRemaining);
+
+    if (timeRemaining < 0) {
+      // Play a beep sound when time runs out
+      playBeep();
+
+      // Switch between workout and rest phases
       if (isWorkout) {
         isWorkout = false;
-        if (currentRound < rounds) {
-          startTimer(restTime);
-        }
+        updateStatus("Rest", currentRound, totalRounds);
+        runTimer(workTime, restTime, totalRounds);
       } else {
-        currentRound++;
         isWorkout = true;
-        if (currentRound < rounds) {
-          startTimer(workoutTime);
-        } else {
-          document.getElementById('timer').textContent = "Done!";
+        currentRound++;
+        if (currentRound > totalRounds) {
+          // End the timer if all rounds are complete
+          clearInterval(timerInterval);
+          updateStatus("Workout Complete!", currentRound - 1, totalRounds);
+          return;
         }
+        updateStatus("Workout", currentRound, totalRounds);
+        runTimer(workTime, restTime, totalRounds);
       }
+
+      clearInterval(timerInterval); // Clear the interval before switching
     }
-    remaining--;
   }, 1000);
 }
 
-function formatTime(seconds) {
-  let mins = Math.floor(seconds / 60);
-  let secs = seconds % 60;
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+// Function to update the timer display
+function updateTimerDisplay(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  document.getElementById('timer').textContent = `${minutes
+    .toString()
+    .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
-// Check if the browser supports service workers
-if ('serviceWorker' in navigator) {
-  // Register the service worker
-  navigator.serviceWorker.register('/service-worker.js')
-    .then(registration => {
-      console.log('Service Worker registered successfully:', registration);
-    })
-    .catch(error => {
-      console.error('Service Worker registration failed:', error);
-    });
+
+// Function to update the status (Workout/Rest and Rounds)
+function updateStatus(phase, round, totalRounds) {
+  const statusElement = document.getElementById('status');
+  if (phase === "Workout Complete!") {
+    statusElement.textContent = phase;
+  } else {
+    statusElement.textContent = `${phase} - Round ${round} of ${totalRounds}`;
+  }
 }
+
+// Function to play a beep sound
+function playBeep() {
+  const beep = new Audio("https://www.soundjay.com/button/beep-07.wav");
+  beep.play();
+}
+
+// Add event listener to the Start button
+document.getElementById('start').addEventListener('click', startTimer);
