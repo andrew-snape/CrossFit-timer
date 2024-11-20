@@ -1,16 +1,16 @@
 {
   "name": "CrossFit Timer",
   "short_name": "Timer",
-  "start_url": "/index.html",
+  "start_url": "/CrossFit-timer/index.html",
   "display": "standalone",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/CrossFit-timer/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "/CrossFit-timer/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
