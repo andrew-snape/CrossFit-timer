@@ -190,6 +190,23 @@
       updateTimerDisplay(0);
       updateStatus("Timer Stopped", 0, 0);
     }
+
+    // Register service worker and handle updates
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js').then(reg => {
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // Notify the user of the new version
+              if (confirm("A new version of this app is available. Reload now?")) {
+                window.location.reload();
+              }
+            }
+          });
+        });
+      });
+    }
   </script>
 </body>
 </html>
