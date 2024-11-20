@@ -1,12 +1,13 @@
-const CACHE_NAME = 'crossfit-timer-v3'; // Update version whenever there are new changes
+
+const CACHE_NAME = 'crossfit-timer-v4';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/styles.css?v=2.0',
-  '/app.js?v=2.0',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  '/CrossFit-timer/',
+  '/CrossFit-timer/index.html',
+  '/CrossFit-timer/styles.css?v=2.0',
+  '/CrossFit-timer/app.js?v=2.0',
+  '/CrossFit-timer/manifest.json',
+  '/CrossFit-timer/icon-192.png',
+  '/CrossFit-timer/icon-512.png'
 ];
 
 // Install Service Worker
@@ -43,23 +44,17 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Cache hit - return response
         if (response) {
           return response;
         }
-        
-        // Clone the request
-        const fetchRequest = event.request.clone();
 
+        const fetchRequest = event.request.clone();
         return fetch(fetchRequest).then((response) => {
-          // Check if the response is valid
           if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;
           }
 
-          // Clone the response
           const responseToCache = response.clone();
-
           caches.open(CACHE_NAME)
             .then((cache) => {
               cache.put(event.request, responseToCache);

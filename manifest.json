@@ -1,7 +1,8 @@
+
 {
   "name": "CrossFit Timer",
   "short_name": "Timer",
-  "start_url": "/CrossFit-timer/index.html",
+  "start_url": "/CrossFit-timer/",
   "display": "standalone",
   "icons": [
     {

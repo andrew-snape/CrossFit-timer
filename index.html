@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,85 +7,34 @@
   <title>CrossFit Timer</title>
   
   <!-- Link to CSS for styling -->
-  <link rel="stylesheet" href="styles.css?v=2.0">
+  <link rel="stylesheet" href="/CrossFit-timer/styles.css?v=2.0">
+  <link rel="preload" href="/CrossFit-timer/styles.css?v=2.0" as="style">
+  <link rel="preload" href="https://fonts.googleapis.com/css?family=Arial" as="font" type="font/woff2" crossorigin="anonymous">
 
   <!-- Theme color for mobile browsers -->
   <meta name="theme-color" content="#000000">
 
   <!-- PWA Manifest -->
-  <link rel="manifest" href="./manifest.json">
+  <link rel="manifest" href="/CrossFit-timer/manifest.json">
 
   <!-- iOS-specific PWA settings -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <!-- iOS App Icon -->
-  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="/CrossFit-timer/icon-192.png">
 
   <!-- Responsive Meta Tags for Landscape Use -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
-  <style>
-    /* General styling */
-    body {
-      font-family: Arial, sans-serif;
-    }
-
-    #app {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-
-    /* Layout for landscape mode */
-    @media screen and (orientation: landscape) {
-      #app {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-        align-items: center;
-      }
-      #timer-section, #reps-section {
-        flex: 1;
-        padding: 20px;
-      }
-    }
-
-    #timer-section, #reps-section {
-      text-align: center;
-      margin: 20px;
-    }
-
-    .time-input-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .time-input {
-      width: 60px;
-      font-size: 1em;
-    }
-
-    .rep-buttons button {
-      width: 80px;
-      height: 80px;
-      font-size: 1.5em;
-      margin: 10px;
-    }
-  </style>
 </head>
 <body>
   <div id="app">
     <div id="timer-section">
       <h1>CrossFit Timer</h1>
       <div id="input-section">
-        <label for="work-min">Workout Time</label>
+        <label for="work-min">Workout Minutes</label>
         <div class="time-input-container">
-          <select id="work-min" class="time-input">
+          <select id="work-min" class="time-input" aria-label="Workout Minutes">
             <option value="0">0</option>
             <option value="1">1</option>
             <option value="2">2</option>
@@ -97,8 +47,8 @@
             <option value="9">9</option>
             <option value="10">10</option>
           </select>
-          <label for="work-sec">:</label>
-          <select id="work-sec" class="time-input">
+          <label for="work-sec">Workout Seconds</label>
+          <select id="work-sec" class="time-input" aria-label="Workout Seconds">
             <option value="0">0</option>
             <option value="15">15</option>
             <option value="30">30</option>
@@ -108,7 +58,7 @@
       </div>
       <div id="rest-section">
         <label for="rest">Rest Time (seconds):</label>
-        <select id="rest">
+        <select id="rest" aria-label="Rest Time">
           <option value="0">0</option>
           <option value="10">10</option>
           <option value="20">20</option>
@@ -120,7 +70,7 @@
       </div>
       <div id="rounds-section">
         <label for="rounds">Rounds:</label>
-        <select id="rounds">
+        <select id="rounds" aria-label="Rounds">
           <option value="1">1</option>
           <option value="2">2</option>
           <option value="3">3</option>
@@ -136,139 +86,20 @@
     </div>
     <div id="reps-section">
       <div id="control-section">
-        <button id="start">Start Timer</button>
-        <button id="stop">Stop Timer</button>
+        <button id="start" role="button" aria-label="Start Timer">Start Timer</button>
+        <button id="stop" role="button" aria-label="Stop Timer">Stop Timer</button>
         <h2 id="timer">00:00</h2>
         <h3 id="status"></h3>
       </div>
       <div class="rep-buttons">
-        <button id="rep-decrement" class="large-button">-1 Rep</button>
-        <button id="rep-increment" class="large-button">+1 Rep</button>
+        <button id="rep-decrement" class="large-button" aria-label="Decrement Rep">-1 Rep</button>
+        <button id="rep-increment" class="large-button" aria-label="Increment Rep">+1 Rep</button>
       </div>
       <h3 id="reps-count">Reps: 0</h3>
     </div>
   </div>
 
   <!-- Link to JavaScript for functionality -->
-  <script src="app.js?v=2.0"></script>
-  <script>
-    // Function to play a generated beep sound using Web Audio API
-    function playBeep() {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioCtx.createOscillator();
-      oscillator.type = 'square'; // Tone type: square wave for a buzzer-like sound
-      oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // Frequency in Hz
-      oscillator.connect(audioCtx.destination);
-      oscillator.start();
-
-      // Stop the beep after 200 ms
-      setTimeout(() => {
-        oscillator.stop();
-      }, 200);
-    }
-
-    // Hide inputs when timer starts
-    document.getElementById('start').addEventListener('click', () => {
-      document.getElementById('input-section').classList.add('hidden');
-      document.getElementById('rest-section').classList.add('hidden');
-      document.getElementById('rounds-section').classList.add('hidden');
-      startTimer();
-    });
-
-    // Show inputs when timer stops
-    document.getElementById('stop').addEventListener('click', () => {
-      document.getElementById('input-section').classList.remove('hidden');
-      document.getElementById('rest-section').classList.remove('hidden');
-      document.getElementById('rounds-section').classList.remove('hidden');
-      stopTimer();
-    });
-
-    // Function to start the timer
-    let timerInterval;
-    let currentRound = 1;
-    let isWorkout = true;
-
-    function startTimer() {
-      clearInterval(timerInterval);
-
-      const workMinutes = parseInt(document.getElementById('work-min').value);
-      const workSeconds = parseInt(document.getElementById('work-sec').value);
-      const workTime = (workMinutes * 60) + workSeconds;
-      const restTime = parseInt(document.getElementById('rest').value);
-      const totalRounds = parseInt(document.getElementById('rounds').value);
-
-      currentRound = 1;
-      isWorkout = true;
-      runTimer(workTime, restTime, totalRounds);
-    }
-
-    function runTimer(workTime, restTime, totalRounds) {
-      let timeRemaining = isWorkout ? workTime : restTime;
-      updateTimerDisplay(timeRemaining);
-
-      timerInterval = setInterval(() => {
-        timeRemaining--;
-        updateTimerDisplay(timeRemaining);
-
-        if (timeRemaining < 0) {
-          playBeep();
-          clearInterval(timerInterval);
-
-          if (isWorkout) {
-            if (currentRound >= totalRounds) {
-              updateStatus("Workout Complete!", totalRounds, totalRounds);
-            } else {
-              isWorkout = false;
-              updateStatus("Rest", currentRound, totalRounds);
-              runTimer(workTime, restTime, totalRounds);
-            }
-          } else {
-            isWorkout = true;
-            currentRound++;
-            updateStatus("Workout", currentRound, totalRounds);
-            runTimer(workTime, restTime, totalRounds);
-          }
-        }
-      }, 1000);
-    }
-
-    function updateTimerDisplay(seconds) {
-      const minutes = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      document.getElementById('timer').textContent = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    function updateStatus(phase, round, totalRounds) {
-      const statusElement = document.getElementById('status');
-      if (phase === "Workout Complete!") {
-        statusElement.textContent = phase;
-      } else {
-        statusElement.textContent = `${phase} - Round ${round} of ${totalRounds}`;
-      }
-    }
-
-    function stopTimer() {
-      clearInterval(timerInterval);
-      updateTimerDisplay(0);
-      updateStatus("Timer Stopped", 0, 0);
-    }
-
-    // Register service worker and handle updates
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./service-worker.js').then(reg => {
-        reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // Notify the user of the new version
-              if (confirm("A new version of this app is available. Reload now?")) {
-                window.location.reload();
-              }
-            }
-          });
-        });
-      });
-    }
-  </script>
+  <script src="/CrossFit-timer/app.js?v=2.0"></script>
 </body>
 </html>
