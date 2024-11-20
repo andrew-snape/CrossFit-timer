@@ -2,10 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>CrossFit Timer</title>
+
+  <!-- Link to Stylesheet -->
   <link rel="stylesheet" href="styles.css">
+
+  <!-- Theme Colour for Address Bar -->
   <meta name="theme-color" content="#000000">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Enable Standalone Mode for iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- App Icons for iOS -->
   <link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
@@ -26,6 +39,8 @@
     <button id="start">Start Timer</button>
     <h2 id="timer">00:00</h2>
   </div>
+
+  <!-- Link to JavaScript -->
   <script src="app.js"></script>
 </body>
 </html>
