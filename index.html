@@ -25,27 +25,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
   <style>
-    /* Additional styles for landscape formatting */
+    /* General styling */
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    /* Layout for landscape mode */
     @media screen and (orientation: landscape) {
       #app {
         display: flex;
         flex-direction: row;
-        justify-content: space-between;
+        justify-content: space-around;
         align-items: center;
       }
-      #timer-section {
-        flex: 1;
-        padding: 20px;
-      }
-      #reps-section {
+      #timer-section, #reps-section {
         flex: 1;
         padding: 20px;
       }
     }
 
-    /* Hide inputs after timer starts */
-    .hidden {
-      display: none;
+    #timer-section, #reps-section {
+      text-align: center;
+      margin: 20px;
+    }
+
+    .time-input-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .time-input {
+      width: 60px;
+      font-size: 1em;
     }
 
     .rep-buttons button {
@@ -61,29 +82,70 @@
     <div id="timer-section">
       <h1>CrossFit Timer</h1>
       <div id="input-section">
-        <label for="work-min">Workout Time</label><br>
-        <input type="number" id="work-min" value="0" placeholder="Minutes">
-        <input type="number" id="work-sec" value="20" placeholder="Seconds">
+        <label for="work-min">Workout Time</label>
+        <div class="time-input-container">
+          <select id="work-min" class="time-input">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+          <label for="work-sec">:</label>
+          <select id="work-sec" class="time-input">
+            <option value="0">0</option>
+            <option value="15">15</option>
+            <option value="30">30</option>
+            <option value="45">45</option>
+          </select>
+        </div>
       </div>
       <div id="rest-section">
         <label for="rest">Rest Time (seconds):</label>
-        <input type="number" id="rest" value="10">
+        <select id="rest">
+          <option value="0">0</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="30">30</option>
+          <option value="40">40</option>
+          <option value="50">50</option>
+          <option value="60">60</option>
+        </select>
       </div>
       <div id="rounds-section">
         <label for="rounds">Rounds:</label>
-        <input type="number" id="rounds" value="8">
+        <select id="rounds">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
       </div>
-      <button id="start">Start Timer</button>
-      <button id="stop">Stop Timer</button>
-      <h2 id="timer">00:00</h2>
-      <h3 id="status"></h3>
     </div>
     <div id="reps-section">
-      <h3 id="reps-count">Reps: 0</h3>
+      <div id="control-section">
+        <button id="start">Start Timer</button>
+        <button id="stop">Stop Timer</button>
+        <h2 id="timer">00:00</h2>
+        <h3 id="status"></h3>
+      </div>
       <div class="rep-buttons">
         <button id="rep-decrement" class="large-button">-1 Rep</button>
         <button id="rep-increment" class="large-button">+1 Rep</button>
       </div>
+      <h3 id="reps-count">Reps: 0</h3>
     </div>
   </div>
 
