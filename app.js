@@ -43,3 +43,14 @@ function formatTime(seconds) {
   let secs = seconds % 60;
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
+// Check if the browser supports service workers
+if ('serviceWorker' in navigator) {
+  // Register the service worker
+  navigator.serviceWorker.register('/service-worker.js')
+    .then(registration => {
+      console.log('Service Worker registered successfully:', registration);
+    })
+    .catch(error => {
+      console.error('Service Worker registration failed:', error);
+    });
+}
