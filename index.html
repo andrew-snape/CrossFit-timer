@@ -12,21 +12,26 @@
   <meta name="theme-color" content="#000000">
 
   <!-- PWA Manifest -->
-  <link rel="manifest" href="/CrossFit-timer/manifest.json">
+  <link rel="manifest" href="./manifest.json">
 
   <!-- iOS-specific PWA settings -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <!-- iOS App Icon -->
-  <link rel="apple-touch-icon" href="/CrossFit-timer/icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+
+  <!-- Responsive Meta Tags for Landscape Use -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 </head>
 <body>
   <div id="app">
     <h1>CrossFit Timer</h1>
     <div>
-      <label for="work">Workout Time (seconds):</label>
-      <input type="number" id="work" value="20">
+      <label for="work-min">Workout Time - Minutes:</label>
+      <input type="number" id="work-min" value="0">
+      <label for="work-sec">Workout Time - Seconds:</label>
+      <input type="number" id="work-sec" value="20">
     </div>
     <div>
       <label for="rest">Rest Time (seconds):</label>
@@ -38,10 +43,13 @@
     </div>
     <button id="start">Start Timer</button>
     <button id="stop">Stop Timer</button>
-    <button id="count-rep">Count Rep</button>
     <h2 id="timer">00:00</h2>
     <h3 id="status"></h3>
     <h3 id="reps-count">Reps: 0</h3>
+    <div class="rep-buttons">
+      <button id="rep-increment" class="large-button">+1 Rep</button>
+      <button id="rep-decrement" class="large-button">-1 Rep</button>
+    </div>
   </div>
 
   <!-- Link to JavaScript for functionality -->

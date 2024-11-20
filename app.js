@@ -10,7 +10,9 @@ function startTimer() {
   clearInterval(timerInterval);
 
   // Get values from the input fields
-  const workTime = parseInt(document.getElementById('work').value);
+  const workMinutes = parseInt(document.getElementById('work-min').value);
+  const workSeconds = parseInt(document.getElementById('work-sec').value);
+  const workTime = (workMinutes * 60) + workSeconds;
   const restTime = parseInt(document.getElementById('rest').value);
   const totalRounds = parseInt(document.getElementById('rounds').value);
 
@@ -97,10 +99,18 @@ function playBeep() {
   }, 200);
 }
 
-// Function to count reps
-function countRep() {
+// Function to count reps (increment)
+function incrementRep() {
   repsCount++;
   updateRepsCount();
+}
+
+// Function to count reps (decrement)
+function decrementRep() {
+  if (repsCount > 0) {
+    repsCount--;
+    updateRepsCount();
+  }
 }
 
 // Function to update the reps count display
@@ -120,5 +130,6 @@ function stopTimer() {
 // Add event listeners to buttons
 document.getElementById('start').addEventListener('click', startTimer);
 document.getElementById('stop').addEventListener('click', stopTimer);
-document.getElementById('count-rep').addEventListener('click', countRep);
+document.getElementById('rep-increment').addEventListener('click', incrementRep);
+document.getElementById('rep-decrement').addEventListener('click', decrementRep);
 
