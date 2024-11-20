@@ -1,9 +1,10 @@
-let timerInterval;
-let currentRound = 1;
+let timerInterval;  // Interval ID for the countdown timer
+let currentRound = 1;  // Keeps track of the current round
+let isWorkout = true;  // Keeps track of whether it's a workout or rest phase
 
 // Function to start the timer
 function startTimer() {
-  // Clear any existing intervals
+  // Clear any existing intervals to prevent multiple timers running
   clearInterval(timerInterval);
 
   // Get values from the input fields
@@ -11,42 +12,47 @@ function startTimer() {
   const restTime = parseInt(document.getElementById('rest').value);
   const totalRounds = parseInt(document.getElementById('rounds').value);
 
-  // Reset round count and start the first workout phase
+  // Reset to the first round and set to workout mode
   currentRound = 1;
+  isWorkout = true;
+
+  // Start the first workout phase
   startPhase("Workout", workTime, restTime, totalRounds);
 }
 
-// Function to handle the phases (Workout or Rest)
+// Function to handle a single phase of the timer
 function startPhase(phase, workTime, restTime, totalRounds) {
   let timeRemaining = (phase === "Workout") ? workTime : restTime;
 
-  // Update the UI with the current phase and round status
+  // Update the status display
   updateStatus(phase, currentRound, totalRounds);
   updateTimerDisplay(timeRemaining);
 
-  // Start the countdown
+  // Set up a countdown timer for the current phase
   timerInterval = setInterval(() => {
     timeRemaining--;
     updateTimerDisplay(timeRemaining);
 
-    if (timeRemaining < 0) {
-      // Clear the interval when phase ends
+    if (timeRemaining <= 0) {
+      // Clear the interval when the current phase ends
       clearInterval(timerInterval);
 
-      // Play beep sound
+      // Play a beep sound when time runs out
       playBeep();
 
-      // Switch to the next phase
+      // Switch between workout and rest phases or move to the next round
       if (phase === "Workout") {
         if (currentRound >= totalRounds) {
-          // If all rounds are complete, finish the timer
+          // All rounds complete
           updateStatus("Workout Complete!", totalRounds, totalRounds);
         } else {
           // Move to rest phase
+          isWorkout = false;
           startPhase("Rest", workTime, restTime, totalRounds);
         }
       } else if (phase === "Rest") {
-        // After rest, move to the next round of workout
+        // After rest, move to the next workout round
+        isWorkout = true;
         currentRound++;
         startPhase("Workout", workTime, restTime, totalRounds);
       }
@@ -78,6 +84,8 @@ function playBeep() {
   const beep = new Audio("https://www.soundjay.com/button/beep-07.wav");
   beep.play().catch(error => {
     console.error("Error playing beep sound:", error);
+    // Display a fallback alert if the beep cannot be played
+    alert("Phase complete! Please switch phases manually if required.");
   });
 }
 
