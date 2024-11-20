@@ -12,12 +12,12 @@ function startTimer() {
   const restTime = parseInt(document.getElementById('rest').value);
   const totalRounds = parseInt(document.getElementById('rounds').value);
 
-  // Display initial state
+  // Reset round and phase
   currentRound = 1;
   isWorkout = true;
   updateStatus("Workout", currentRound, totalRounds);
 
-  // Start the first phase
+  // Start the timer
   runTimer(workTime, restTime, totalRounds);
 }
 
@@ -25,9 +25,10 @@ function startTimer() {
 function runTimer(workTime, restTime, totalRounds) {
   let timeRemaining = isWorkout ? workTime : restTime;
 
-  // Update the display
+  // Update the timer display
   updateTimerDisplay(timeRemaining);
 
+  // Set the interval to count down the time
   timerInterval = setInterval(() => {
     timeRemaining--;
     updateTimerDisplay(timeRemaining);
@@ -36,23 +37,25 @@ function runTimer(workTime, restTime, totalRounds) {
       // Play a beep sound when time runs out
       playBeep();
 
-      clearInterval(timerInterval); // Clear the interval before switching
+      // Clear the current interval
+      clearInterval(timerInterval);
 
-      // Switch between workout and rest phases
+      // Switch phases
       if (isWorkout) {
+        // Switch to rest phase
         isWorkout = false;
         updateStatus("Rest", currentRound, totalRounds);
         runTimer(workTime, restTime, totalRounds);
       } else {
-        isWorkout = true;
+        // Rest phase is complete, start the next round
         currentRound++;
-
         if (currentRound > totalRounds) {
-          // End the timer if all rounds are complete
+          // All rounds are complete
           updateStatus("Workout Complete!", totalRounds, totalRounds);
           return;
         }
-
+        // Switch back to workout phase for the next round
+        isWorkout = true;
         updateStatus("Workout", currentRound, totalRounds);
         runTimer(workTime, restTime, totalRounds);
       }
@@ -82,7 +85,9 @@ function updateStatus(phase, round, totalRounds) {
 // Function to play a beep sound
 function playBeep() {
   const beep = new Audio("https://www.soundjay.com/button/beep-07.wav");
-  beep.play();
+  beep.play().catch(error => {
+    console.error("Error playing beep sound:", error);
+  });
 }
 
 // Add event listener to the Start button
