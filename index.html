@@ -7,19 +7,19 @@
   
   <!-- Link to CSS for styling -->
   <link rel="stylesheet" href="styles.css">
-  
+
   <!-- Theme color for mobile browsers -->
   <meta name="theme-color" content="#000000">
 
   <!-- PWA Manifest -->
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="/CrossFit-timer/manifest.json">
 
   <!-- iOS-specific PWA settings -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <!-- iOS App Icon -->
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="/CrossFit-timer/icon-192.png">
 </head>
 <body>
   <div id="app">
@@ -37,11 +37,30 @@
       <input type="number" id="rounds" value="8">
     </div>
     <button id="start">Start Timer</button>
+    <button id="stop">Stop Timer</button>
+    <button id="count-rep">Count Rep</button>
     <h2 id="timer">00:00</h2>
     <h3 id="status"></h3>
+    <h3 id="reps-count">Reps: 0</h3>
   </div>
 
   <!-- Link to JavaScript for functionality -->
   <script src="app.js"></script>
+  <script>
+    // Function to play a generated beep sound using Web Audio API
+    function playBeep() {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      oscillator.type = 'square'; // Tone type: square wave for a buzzer-like sound
+      oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // Frequency in Hz
+      oscillator.connect(audioCtx.destination);
+      oscillator.start();
+
+      // Stop the beep after 200 ms
+      setTimeout(() => {
+        oscillator.stop();
+      }, 200);
+    }
+  </script>
 </body>
 </html>

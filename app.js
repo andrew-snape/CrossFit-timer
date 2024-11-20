@@ -1,10 +1,12 @@
-let timerInterval;  // Interval ID for the countdown timer
-let currentRound = 1;  // Keeps track of the current round
-let isWorkout = true;  // Keeps track of whether it's a workout or rest phase
+// JavaScript code for CrossFit Timer App
+let timerInterval;
+let currentRound = 1;
+let repsCount = 0;
+let isWorkout = true;
 
 // Function to start the timer
 function startTimer() {
-  // Clear any existing intervals to prevent multiple timers running
+  // Clear any existing intervals
   clearInterval(timerInterval);
 
   // Get values from the input fields
@@ -12,49 +14,52 @@ function startTimer() {
   const restTime = parseInt(document.getElementById('rest').value);
   const totalRounds = parseInt(document.getElementById('rounds').value);
 
-  // Reset to the first round and set to workout mode
+  // Reset round count and rep count
   currentRound = 1;
+  repsCount = 0;
   isWorkout = true;
+  updateRepsCount();
+  updateStatus("Workout", currentRound, totalRounds);
 
-  // Start the first workout phase
-  startPhase("Workout", workTime, restTime, totalRounds);
+  // Start the first phase
+  runTimer(workTime, restTime, totalRounds);
 }
 
-// Function to handle a single phase of the timer
-function startPhase(phase, workTime, restTime, totalRounds) {
-  let timeRemaining = (phase === "Workout") ? workTime : restTime;
+// Function to run the timer
+function runTimer(workTime, restTime, totalRounds) {
+  let timeRemaining = isWorkout ? workTime : restTime;
 
-  // Update the status display
-  updateStatus(phase, currentRound, totalRounds);
+  // Update the display
   updateTimerDisplay(timeRemaining);
 
-  // Set up a countdown timer for the current phase
   timerInterval = setInterval(() => {
     timeRemaining--;
     updateTimerDisplay(timeRemaining);
 
-    if (timeRemaining <= 0) {
-      // Clear the interval when the current phase ends
-      clearInterval(timerInterval);
-
+    if (timeRemaining < 0) {
       // Play a beep sound when time runs out
       playBeep();
 
-      // Switch between workout and rest phases or move to the next round
-      if (phase === "Workout") {
+      // Clear the current interval
+      clearInterval(timerInterval);
+
+      // Switch between workout and rest phases
+      if (isWorkout) {
         if (currentRound >= totalRounds) {
           // All rounds complete
           updateStatus("Workout Complete!", totalRounds, totalRounds);
         } else {
           // Move to rest phase
           isWorkout = false;
-          startPhase("Rest", workTime, restTime, totalRounds);
+          updateStatus("Rest", currentRound, totalRounds);
+          runTimer(workTime, restTime, totalRounds);
         }
-      } else if (phase === "Rest") {
+      } else {
         // After rest, move to the next workout round
         isWorkout = true;
         currentRound++;
-        startPhase("Workout", workTime, restTime, totalRounds);
+        updateStatus("Workout", currentRound, totalRounds);
+        runTimer(workTime, restTime, totalRounds);
       }
     }
   }, 1000);
@@ -64,9 +69,7 @@ function startPhase(phase, workTime, restTime, totalRounds) {
 function updateTimerDisplay(seconds) {
   const minutes = Math.floor(seconds / 60);
   const secs = seconds % 60;
-  document.getElementById('timer').textContent = `${minutes
-    .toString()
-    .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  document.getElementById('timer').textContent = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
 // Function to update the status (Workout/Rest and Rounds)
@@ -79,15 +82,43 @@ function updateStatus(phase, round, totalRounds) {
   }
 }
 
-// Function to play a beep sound
+// Function to play a generated beep sound using Web Audio API
 function playBeep() {
-  const beep = new Audio("https://www.soundjay.com/button/beep-07.wav");
-  beep.play().catch(error => {
-    console.error("Error playing beep sound:", error);
-    // Display a fallback alert if the beep cannot be played
-    alert("Phase complete! Please switch phases manually if required.");
-  });
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioCtx.createOscillator();
+  oscillator.type = 'square'; // Tone type: square wave for a buzzer-like sound
+  oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // Frequency in Hz
+  oscillator.connect(audioCtx.destination);
+  oscillator.start();
+
+  // Stop the beep after 200 ms
+  setTimeout(() => {
+    oscillator.stop();
+  }, 200);
 }
 
-// Add event listener to the Start button
+// Function to count reps
+function countRep() {
+  repsCount++;
+  updateRepsCount();
+}
+
+// Function to update the reps count display
+function updateRepsCount() {
+  document.getElementById('reps-count').textContent = `Reps: ${repsCount}`;
+}
+
+// Function to stop the timer
+function stopTimer() {
+  clearInterval(timerInterval);
+  updateTimerDisplay(0);
+  updateStatus("Timer Stopped", 0, 0);
+  repsCount = 0;
+  updateRepsCount();
+}
+
+// Add event listeners to buttons
 document.getElementById('start').addEventListener('click', startTimer);
+document.getElementById('stop').addEventListener('click', stopTimer);
+document.getElementById('count-rep').addEventListener('click', countRep);
+
