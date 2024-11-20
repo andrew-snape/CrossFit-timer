@@ -1,6 +1,5 @@
 let timerInterval;
 let currentRound = 1;
-let isWorkout = true;
 
 // Function to start the timer
 function startTimer() {
@@ -12,52 +11,44 @@ function startTimer() {
   const restTime = parseInt(document.getElementById('rest').value);
   const totalRounds = parseInt(document.getElementById('rounds').value);
 
-  // Reset round and phase
+  // Reset round count and start the first workout phase
   currentRound = 1;
-  isWorkout = true;
-  updateStatus("Workout", currentRound, totalRounds);
-
-  // Start the timer
-  runTimer(workTime, restTime, totalRounds);
+  startPhase("Workout", workTime, restTime, totalRounds);
 }
 
-// Function to run the timer
-function runTimer(workTime, restTime, totalRounds) {
-  let timeRemaining = isWorkout ? workTime : restTime;
+// Function to handle the phases (Workout or Rest)
+function startPhase(phase, workTime, restTime, totalRounds) {
+  let timeRemaining = (phase === "Workout") ? workTime : restTime;
 
-  // Update the timer display
+  // Update the UI with the current phase and round status
+  updateStatus(phase, currentRound, totalRounds);
   updateTimerDisplay(timeRemaining);
 
-  // Set the interval to count down the time
+  // Start the countdown
   timerInterval = setInterval(() => {
     timeRemaining--;
     updateTimerDisplay(timeRemaining);
 
     if (timeRemaining < 0) {
-      // Play a beep sound when time runs out
-      playBeep();
-
-      // Clear the current interval
+      // Clear the interval when phase ends
       clearInterval(timerInterval);
 
-      // Switch phases
-      if (isWorkout) {
-        // Switch to rest phase
-        isWorkout = false;
-        updateStatus("Rest", currentRound, totalRounds);
-        runTimer(workTime, restTime, totalRounds);
-      } else {
-        // Rest phase is complete, start the next round
-        currentRound++;
-        if (currentRound > totalRounds) {
-          // All rounds are complete
+      // Play beep sound
+      playBeep();
+
+      // Switch to the next phase
+      if (phase === "Workout") {
+        if (currentRound >= totalRounds) {
+          // If all rounds are complete, finish the timer
           updateStatus("Workout Complete!", totalRounds, totalRounds);
-          return;
+        } else {
+          // Move to rest phase
+          startPhase("Rest", workTime, restTime, totalRounds);
         }
-        // Switch back to workout phase for the next round
-        isWorkout = true;
-        updateStatus("Workout", currentRound, totalRounds);
-        runTimer(workTime, restTime, totalRounds);
+      } else if (phase === "Rest") {
+        // After rest, move to the next round of workout
+        currentRound++;
+        startPhase("Workout", workTime, restTime, totalRounds);
       }
     }
   }, 1000);
