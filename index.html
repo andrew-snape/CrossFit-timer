@@ -6,7 +6,7 @@
   <title>CrossFit Timer</title>
   
   <!-- Link to CSS for styling -->
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=2.0">
 
   <!-- Theme color for mobile browsers -->
   <meta name="theme-color" content="#000000">
@@ -88,7 +88,7 @@
   </div>
 
   <!-- Link to JavaScript for functionality -->
-  <script src="app.js"></script>
+  <script src="app.js?v=2.0"></script>
   <script>
     // Function to play a generated beep sound using Web Audio API
     function playBeep() {
@@ -110,6 +110,7 @@
       document.getElementById('input-section').classList.add('hidden');
       document.getElementById('rest-section').classList.add('hidden');
       document.getElementById('rounds-section').classList.add('hidden');
+      startTimer();
     });
 
     // Show inputs when timer stops
@@ -117,7 +118,78 @@
       document.getElementById('input-section').classList.remove('hidden');
       document.getElementById('rest-section').classList.remove('hidden');
       document.getElementById('rounds-section').classList.remove('hidden');
+      stopTimer();
     });
+
+    // Function to start the timer
+    let timerInterval;
+    let currentRound = 1;
+    let isWorkout = true;
+
+    function startTimer() {
+      clearInterval(timerInterval);
+
+      const workMinutes = parseInt(document.getElementById('work-min').value);
+      const workSeconds = parseInt(document.getElementById('work-sec').value);
+      const workTime = (workMinutes * 60) + workSeconds;
+      const restTime = parseInt(document.getElementById('rest').value);
+      const totalRounds = parseInt(document.getElementById('rounds').value);
+
+      currentRound = 1;
+      isWorkout = true;
+      runTimer(workTime, restTime, totalRounds);
+    }
+
+    function runTimer(workTime, restTime, totalRounds) {
+      let timeRemaining = isWorkout ? workTime : restTime;
+      updateTimerDisplay(timeRemaining);
+
+      timerInterval = setInterval(() => {
+        timeRemaining--;
+        updateTimerDisplay(timeRemaining);
+
+        if (timeRemaining < 0) {
+          playBeep();
+          clearInterval(timerInterval);
+
+          if (isWorkout) {
+            if (currentRound >= totalRounds) {
+              updateStatus("Workout Complete!", totalRounds, totalRounds);
+            } else {
+              isWorkout = false;
+              updateStatus("Rest", currentRound, totalRounds);
+              runTimer(workTime, restTime, totalRounds);
+            }
+          } else {
+            isWorkout = true;
+            currentRound++;
+            updateStatus("Workout", currentRound, totalRounds);
+            runTimer(workTime, restTime, totalRounds);
+          }
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      document.getElementById('timer').textContent = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function updateStatus(phase, round, totalRounds) {
+      const statusElement = document.getElementById('status');
+      if (phase === "Workout Complete!") {
+        statusElement.textContent = phase;
+      } else {
+        statusElement.textContent = `${phase} - Round ${round} of ${totalRounds}`;
+      }
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+      updateTimerDisplay(0);
+      updateStatus("Timer Stopped", 0, 0);
+    }
   </script>
 </body>
 </html>
