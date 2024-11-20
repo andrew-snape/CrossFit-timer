@@ -1,39 +1,29 @@
-// Declare variables for the timer state
 let timerInterval;
 let currentRound = 1;
 let isWorkout = true;
 
 // Function to start the timer
 function startTimer() {
-  // Get values from the input fields
   const workTime = parseInt(document.getElementById('work').value);
   const restTime = parseInt(document.getElementById('rest').value);
   const totalRounds = parseInt(document.getElementById('rounds').value);
 
-  // Display initial state
   updateStatus("Workout", currentRound, totalRounds);
-
-  // Start the first phase
   runTimer(workTime, restTime, totalRounds);
 }
 
 // Function to run the timer
 function runTimer(workTime, restTime, totalRounds) {
   let timeRemaining = isWorkout ? workTime : restTime;
-
-  // Update the display
   updateTimerDisplay(timeRemaining);
 
-  // Start the interval
   timerInterval = setInterval(() => {
     timeRemaining--;
     updateTimerDisplay(timeRemaining);
 
     if (timeRemaining < 0) {
-      // Play a beep sound when time runs out
       playBeep();
 
-      // Switch between workout and rest phases
       if (isWorkout) {
         isWorkout = false;
         updateStatus("Rest", currentRound, totalRounds);
@@ -42,7 +32,6 @@ function runTimer(workTime, restTime, totalRounds) {
         isWorkout = true;
         currentRound++;
         if (currentRound > totalRounds) {
-          // End the timer if all rounds are complete
           clearInterval(timerInterval);
           updateStatus("Workout Complete!", currentRound - 1, totalRounds);
           return;
@@ -51,7 +40,7 @@ function runTimer(workTime, restTime, totalRounds) {
         runTimer(workTime, restTime, totalRounds);
       }
 
-      clearInterval(timerInterval); // Clear the interval before switching
+      clearInterval(timerInterval);
     }
   }, 1000);
 }
@@ -60,9 +49,7 @@ function runTimer(workTime, restTime, totalRounds) {
 function updateTimerDisplay(seconds) {
   const minutes = Math.floor(seconds / 60);
   const secs = seconds % 60;
-  document.getElementById('timer').textContent = `${minutes
-    .toString()
-    .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  document.getElementById('timer').textContent = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
 // Function to update the status (Workout/Rest and Rounds)
@@ -81,5 +68,4 @@ function playBeep() {
   beep.play();
 }
 
-// Add event listener to the Start button
 document.getElementById('start').addEventListener('click', startTimer);
