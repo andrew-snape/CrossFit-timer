@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
   <title>CrossFit Timer</title>
-  <link rel="stylesheet" href="/CrossFit-timer/styles.css?v=2.0">
+  <link rel="stylesheet" href="/CrossFit-timer/styles.css?v=2.1">
   <meta name="theme-color" content="#000000">
   <link rel="manifest" href="/CrossFit-timer/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,7 +12,7 @@
   <link rel="apple-touch-icon" href="/CrossFit-timer/icon-192.png">
 </head>
 <body>
-  <div id="app">
+  <main id="app">
     <div id="timer-section">
       <h1>CrossFit Timer</h1>
       <div id="input-section">
@@ -85,18 +84,17 @@
           <label for="work-sec">Workout Seconds</label>
           <select id="work-sec" class="time-input" aria-label="Workout Seconds">
             <option value="0">0</option>
-<option value="5">5</option>
-<option value="10">10</option>
-<option value="15">15</option>
-<option value="20">20</option>
-<option value="25">25</option>
-<option value="30">30</option>
-<option value="35">35</option>
-<option value="40">40</option>
-<option value="45">45</option>
-<option value="50">50</option>
-<option value="55">55</option>
-<option value="60">60</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+            <option value="25">25</option>
+            <option value="30">30</option>
+            <option value="35">35</option>
+            <option value="40">40</option>
+            <option value="45">45</option>
+            <option value="50">50</option>
+            <option value="55">55</option>
           </select>
         </div>
       </div>
@@ -104,42 +102,42 @@
         <label for="rest">Rest Time (seconds):</label>
         <select id="rest" aria-label="Rest Time">
           <option value="0">0</option>
-<option value="5">5</option>
-<option value="10">10</option>
-<option value="15">15</option>
-<option value="20">20</option>
-<option value="25">25</option>
-<option value="30">30</option>
-<option value="35">35</option>
-<option value="40">40</option>
-<option value="45">45</option>
-<option value="50">50</option>
-<option value="55">55</option>
-<option value="60">60</option>
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+          <option value="25">25</option>
+          <option value="30">30</option>
+          <option value="35">35</option>
+          <option value="40">40</option>
+          <option value="45">45</option>
+          <option value="50">50</option>
+          <option value="55">55</option>
+          <option value="60">60</option>
         </select>
       </div>
       <div id="rounds-section">
         <label for="rounds">Rounds:</label>
         <select id="rounds" aria-label="Rounds">
           <option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-<option value="6">6</option>
-<option value="7">7</option>
-<option value="8">8</option>
-<option value="9">9</option>
-<option value="10">10</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
         </select>
       </div>
     </div>
     <div id="reps-section">
       <div id="control-section">
         <button id="start" role="button" aria-label="Start Timer">Start Timer</button>
-        <button id="stop" role="button" aria-label="Stop Timer">Stop Timer</button>
-        <h2 id="timer">00:00</h2>
-        <h3 id="status"></h3>
+        <button id="stop" role="button" aria-label="Stop Timer" disabled>Stop Timer</button>
+        <h2 id="timer" aria-live="polite">00:00</h2>
+        <h3 id="status" aria-live="polite"></h3>
       </div>
       <div class="rep-buttons">
         <button id="rep-decrement" class="large-button" aria-label="Decrement Rep">-1 Rep</button>
@@ -150,40 +148,36 @@
     <div id="email-section">
       <button id="email-results" role="button" aria-label="Email Results">Email Results</button>
     </div>
-  </div>
-
-  <script src="/CrossFit-timer/app.js?v=2.0"></script>
+  </main>
+  <script src="/CrossFit-timer/app.js?v=2.1"></script>
   <script>
+    // Install prompt logic
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      const installButton = document.createElement('button');
-      installButton.innerText = 'Install App';
-      installButton.id = 'install-button';
-      document.body.appendChild(installButton);
-
-      installButton.addEventListener('click', () => {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('User accepted the A2HS prompt');
-          } else {
-            console.log('User dismissed the A2HS prompt');
-          }
-          deferredPrompt = null;
-          installButton.remove();
+      if (!document.getElementById('install-button')) {
+        const installButton = document.createElement('button');
+        installButton.innerText = 'Install App';
+        installButton.id = 'install-button';
+        document.body.appendChild(installButton);
+        installButton.addEventListener('click', () => {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            deferredPrompt = null;
+            installButton.remove();
+          });
         });
-      });
+      }
     });
 
+    // Email results logic
     document.getElementById('email-results').addEventListener('click', () => {
       const workoutMinutes = document.getElementById('work-min').value;
       const workoutSeconds = document.getElementById('work-sec').value;
       const restTime = document.getElementById('rest').value;
       const totalRounds = document.getElementById('rounds').value;
       const repsCount = document.getElementById('reps-count').textContent;
-
       const emailBody = `Workout Minutes: ${workoutMinutes}\nWorkout Seconds: ${workoutSeconds}\nRest Time: ${restTime}\nTotal Rounds: ${totalRounds}\n${repsCount}`;
       window.location.href = `mailto:?subject=CrossFit Timer Results&body=${encodeURIComponent(emailBody)}`;
     });

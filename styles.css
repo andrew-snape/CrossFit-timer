@@ -7,20 +7,17 @@ body {
   color: #333;
   text-align: center;
 }
-
 h1 {
   font-size: 2.5em;
   margin: 20px 0;
   color: #007bff;
 }
-
 label {
   display: block;
   margin: 10px 0 5px;
   font-size: 1.2em;
   color: #555;
 }
-
 input {
   padding: 10px;
   font-size: 1em;
@@ -30,7 +27,6 @@ input {
   border: 1px solid #ccc;
   border-radius: 5px;
 }
-
 button {
   padding: 10px 20px;
   font-size: 1.2em;
@@ -42,44 +38,43 @@ button {
   cursor: pointer;
   transition: background-color 0.3s;
 }
-
+button:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
 button:hover {
   background-color: #218838;
 }
-
-/* Timer Styles */
+.large-button {
+  font-size: 1.5em;
+  padding: 15px 30px;
+  margin: 10px;
+}
 #timer {
   font-size: 3em;
   font-weight: bold;
   margin: 20px 0;
   color: #dc3545;
 }
-
 #status {
   font-size: 1.5em;
   font-weight: bold;
   color: #007bff;
   margin-top: 10px;
 }
-
-/* Responsive Layout */
 @media (max-width: 768px) {
   body {
     font-size: 90%;
   }
-
   input {
     width: 80%;
   }
-
   button {
     font-size: 1em;
   }
-
   #timer {
     font-size: 2.5em;
   }
-
   #status {
     font-size: 1.2em;
   }

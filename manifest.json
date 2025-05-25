@@ -1,4 +1,3 @@
-
 {
   "name": "CrossFit Timer",
   "short_name": "Timer",
@@ -17,5 +16,7 @@
     }
   ],
   "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "background_color": "#ffffff",
+  "description": "A CrossFit-style interval timer for workouts and rounds.",
+  "lang": "en"
 }

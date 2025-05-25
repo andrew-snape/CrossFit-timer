@@ -1,135 +1,111 @@
-// JavaScript code for CrossFit Timer App
-let timerInterval;
-let currentRound = 1;
-let repsCount = 0;
-let isWorkout = true;
+// CrossFit Timer App - Modernised & Improved
 
-// Function to start the timer
-function startTimer() {
-  // Clear any existing intervals
-  clearInterval(timerInterval);
+const timerDisplay = document.getElementById('timer');
+const statusDisplay = document.getElementById('status');
+const startButton = document.getElementById('start');
+const stopButton = document.getElementById('stop');
+const workMin = document.getElementById('work-min');
+const workSec = document.getElementById('work-sec');
+const restInput = document.getElementById('rest');
+const roundsInput = document.getElementById('rounds');
+const repIncrement = document.getElementById('rep-increment');
+const repDecrement = document.getElementById('rep-decrement');
+const repsCountDisplay = document.getElementById('reps-count');
 
-  // Get values from the input fields
-  const workMinutes = parseInt(document.getElementById('work-min').value);
-  const workSeconds = parseInt(document.getElementById('work-sec').value);
-  const workTime = (workMinutes * 60) + workSeconds;
-  const restTime = parseInt(document.getElementById('rest').value);
-  const totalRounds = parseInt(document.getElementById('rounds').value);
+let timer = null;
+let round = 1;
+let isWorking = true;
+let timeLeft = 0;
+let totalRounds = 1;
+let reps = 0;
 
-  // Reset round count and rep count
-  currentRound = 1;
-  repsCount = 0;
-  isWorkout = true;
-  updateRepsCount();
-  updateStatus("Workout", currentRound, totalRounds);
-
-  // Start the first phase
-  runTimer(workTime, restTime, totalRounds);
+// Rep counting
+function updateReps() {
+  repsCountDisplay.textContent = `Reps: ${reps}`;
 }
+repIncrement.onclick = () => { reps++; updateReps(); };
+repDecrement.onclick = () => { if (reps > 0) reps--; updateReps(); };
 
-// Function to run the timer
-function runTimer(workTime, restTime, totalRounds) {
-  let timeRemaining = isWorkout ? workTime : restTime;
-
-  // Update the display
-  updateTimerDisplay(timeRemaining);
-
-  timerInterval = setInterval(() => {
-    timeRemaining--;
-    updateTimerDisplay(timeRemaining);
-
-    if (timeRemaining < 0) {
-      // Play a beep sound when time runs out
-      playBeep();
-
-      // Clear the current interval
-      clearInterval(timerInterval);
-
-      // Switch between workout and rest phases
-      if (isWorkout) {
-        if (currentRound >= totalRounds) {
-          // All rounds complete
-          updateStatus("Workout Complete!", totalRounds, totalRounds);
+function formatTime(seconds) {
+  const min = Math.floor(seconds / 60);
+  const sec = seconds % 60;
+  return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+}
+function setStatus(message) {
+  statusDisplay.textContent = message;
+}
+function resetUI() {
+  timerDisplay.textContent = '00:00';
+  setStatus('');
+  round = 1;
+  isWorking = true;
+  timeLeft = 0;
+  startButton.disabled = false;
+  stopButton.disabled = true;
+}
+startButton.onclick = function() {
+  if (timer) return; // prevent multiple timers
+  const wMin = parseInt(workMin.value, 10);
+  const wSec = parseInt(workSec.value, 10);
+  const rest = parseInt(restInput.value, 10);
+  totalRounds = parseInt(roundsInput.value, 10);
+  if (wMin === 0 && wSec === 0) {
+    setStatus('Set workout time!');
+    return;
+  }
+  startButton.disabled = true;
+  stopButton.disabled = false;
+  round = 1;
+  isWorking = true;
+  timeLeft = wMin * 60 + wSec;
+  setStatus(`Round ${round}/${totalRounds}: Work!`);
+  timerDisplay.textContent = formatTime(timeLeft);
+  timer = setInterval(() => {
+    if (timeLeft > 0) {
+      timeLeft--;
+      timerDisplay.textContent = formatTime(timeLeft);
+    } else {
+      if (isWorking) {
+        if (rest > 0) {
+          isWorking = false;
+          timeLeft = rest;
+          setStatus(`Round ${round}/${totalRounds}: Rest`);
         } else {
-          // Move to rest phase
-          isWorkout = false;
-          updateStatus("Rest", currentRound, totalRounds);
-          runTimer(workTime, restTime, totalRounds);
+          nextRoundOrFinish();
         }
       } else {
-        // After rest, move to the next workout round
-        isWorkout = true;
-        currentRound++;
-        updateStatus("Workout", currentRound, totalRounds);
-        runTimer(workTime, restTime, totalRounds);
+        nextRoundOrFinish();
       }
     }
   }, 1000);
-}
-
-// Function to update the timer display
-function updateTimerDisplay(seconds) {
-  const minutes = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  document.getElementById('timer').textContent = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-}
-
-// Function to update the status (Workout/Rest and Rounds)
-function updateStatus(phase, round, totalRounds) {
-  const statusElement = document.getElementById('status');
-  if (phase === "Workout Complete!") {
-    statusElement.textContent = phase;
+};
+function nextRoundOrFinish() {
+  round++;
+  if (round > totalRounds) {
+    setStatus('Workout Complete!');
+    timerDisplay.textContent = '00:00';
+    stopTimer();
   } else {
-    statusElement.textContent = `${phase} - Round ${round} of ${totalRounds}`;
+    const wMin = parseInt(workMin.value, 10);
+    const wSec = parseInt(workSec.value, 10);
+    timeLeft = wMin * 60 + wSec;
+    isWorking = true;
+    setStatus(`Round ${round}/${totalRounds}: Work!`);
   }
 }
-
-// Function to play a generated beep sound using Web Audio API
-function playBeep() {
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  const oscillator = audioCtx.createOscillator();
-  oscillator.type = 'square'; // Tone type: square wave for a buzzer-like sound
-  oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // Frequency in Hz
-  oscillator.connect(audioCtx.destination);
-  oscillator.start();
-
-  // Stop the beep after 200 ms
-  setTimeout(() => {
-    oscillator.stop();
-  }, 200);
-}
-
-// Function to count reps (increment)
-function incrementRep() {
-  repsCount++;
-  updateRepsCount();
-}
-
-// Function to count reps (decrement)
-function decrementRep() {
-  if (repsCount > 0) {
-    repsCount--;
-    updateRepsCount();
-  }
-}
-
-// Function to update the reps count display
-function updateRepsCount() {
-  document.getElementById('reps-count').textContent = `Reps: ${repsCount}`;
-}
-
-// Function to stop the timer
 function stopTimer() {
-  clearInterval(timerInterval);
-  updateTimerDisplay(0);
-  updateStatus("Timer Stopped", 0, 0);
-  repsCount = 0;
-  updateRepsCount();
+  clearInterval(timer);
+  timer = null;
+  startButton.disabled = false;
+  stopButton.disabled = true;
 }
-
-// Add event listeners to buttons
-document.getElementById('start').addEventListener('click', startTimer);
-document.getElementById('stop').addEventListener('click', stopTimer);
-document.getElementById('rep-increment').addEventListener('click', incrementRep);
-document.getElementById('rep-decrement').addEventListener('click', decrementRep);
-
+stopButton.onclick = function() {
+  stopTimer();
+  resetUI();
+};
+resetUI();
+updateReps();
+// PWA: Register service worker if available
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/CrossFit-timer/service-worker.js');
+}
