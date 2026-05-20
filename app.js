@@ -137,9 +137,13 @@ async function disableKeepAwake() {
 }
 
 function handleVisibilityChange() {
-  if (document.visibilityState === 'visible' && timer && keepAwakeMethod === 'wake-lock' && !wakeLockSentinel) {
+  if (shouldReacquireWakeLock()) {
     requestScreenWakeLock();
   }
+}
+
+function shouldReacquireWakeLock() {
+  return document.visibilityState === 'visible' && timer && keepAwakeMethod === 'wake-lock' && !wakeLockSentinel;
 }
 
 function attachVisibilityHandler() {
@@ -209,8 +213,8 @@ function nextRoundOrFinish() {
   if (round > totalRounds) {
     setStatus('Workout Complete!');
     timerDisplay.textContent = '00:00';
-    stopTimer().catch(() => {
-      // Ignore completion cleanup errors; timer has already ended.
+    stopTimer().catch((error) => {
+      console.warn('Cleanup issue after workout completion:', error);
     });
   } else {
     const wMin = parseInt(workMin.value, 10);
