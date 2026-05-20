@@ -12,6 +12,7 @@ const repIncrement = document.getElementById('rep-increment');
 const repDecrement = document.getElementById('rep-decrement');
 const repsCountDisplay = document.getElementById('reps-count');
 const keepAwakeDisplay = document.getElementById('keep-awake-status');
+// Very low, effectively silent signal values used for iOS keep-awake fallback.
 const SILENT_GAIN_LEVEL = 0.00001;
 const SILENT_FREQUENCY_HZ = 20;
 
@@ -108,7 +109,7 @@ async function disableKeepAwake() {
     try {
       await wakeLockSentinel.release();
     } catch (error) {
-      // no-op
+      // Ignore release errors when the wake lock is already gone.
     }
     wakeLockSentinel = null;
   }
@@ -116,7 +117,7 @@ async function disableKeepAwake() {
     try {
       silentOscillator.stop();
     } catch (error) {
-      // no-op
+      // Ignore stop errors when the oscillator is already stopped.
     }
     silentOscillator.disconnect();
     silentOscillator = null;
@@ -126,7 +127,9 @@ async function disableKeepAwake() {
     silentGain = null;
   }
   if (audioContext) {
-    audioContext.close().catch(() => {});
+    audioContext.close().catch(() => {
+      // Ignore close errors when context teardown is already complete.
+    });
     audioContext = null;
   }
   keepAwakeMethod = 'none';
@@ -206,7 +209,9 @@ function nextRoundOrFinish() {
   if (round > totalRounds) {
     setStatus('Workout Complete!');
     timerDisplay.textContent = '00:00';
-    stopTimer().catch(() => {});
+    stopTimer().catch(() => {
+      // Ignore completion cleanup errors; timer has already ended.
+    });
   } else {
     const wMin = parseInt(workMin.value, 10);
     const wSec = parseInt(workSec.value, 10);
