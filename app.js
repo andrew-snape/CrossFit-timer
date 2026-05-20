@@ -24,6 +24,7 @@ let audioContext = null;
 let silentOscillator = null;
 let silentGain = null;
 let keepAwakeMethod = 'none';
+let visibilityHandlerAttached = false;
 
 // Rep counting
 function updateReps() {
@@ -123,11 +124,31 @@ async function disableKeepAwake() {
     silentGain = null;
   }
   if (audioContext) {
-    audioContext.close().catch(() => undefined);
+    audioContext.close().catch(() => {});
     audioContext = null;
   }
   keepAwakeMethod = 'none';
   setKeepAwakeStatus('');
+}
+
+function handleVisibilityChange() {
+  if (document.visibilityState === 'visible' && timer && keepAwakeMethod === 'wake-lock' && !wakeLockSentinel) {
+    requestScreenWakeLock();
+  }
+}
+
+function attachVisibilityHandler() {
+  if (!visibilityHandlerAttached) {
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    visibilityHandlerAttached = true;
+  }
+}
+
+function detachVisibilityHandler() {
+  if (visibilityHandlerAttached) {
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    visibilityHandlerAttached = false;
+  }
 }
 
 function resetUI() {
@@ -158,6 +179,7 @@ startButton.onclick = async function() {
   setStatus(`Round ${round}/${totalRounds}: Work!`);
   timerDisplay.textContent = formatTime(timeLeft);
   await enableKeepAwake();
+  attachVisibilityHandler();
   timer = setInterval(() => {
     if (timeLeft > 0) {
       timeLeft--;
@@ -182,7 +204,7 @@ function nextRoundOrFinish() {
   if (round > totalRounds) {
     setStatus('Workout Complete!');
     timerDisplay.textContent = '00:00';
-    stopTimer();
+    stopTimer().catch(() => {});
   } else {
     const wMin = parseInt(workMin.value, 10);
     const wSec = parseInt(workSec.value, 10);
@@ -191,23 +213,18 @@ function nextRoundOrFinish() {
     setStatus(`Round ${round}/${totalRounds}: Work!`);
   }
 }
-function stopTimer() {
+async function stopTimer() {
   clearInterval(timer);
   timer = null;
   startButton.disabled = false;
   stopButton.disabled = true;
-  disableKeepAwake();
+  detachVisibilityHandler();
+  await disableKeepAwake();
 }
-stopButton.onclick = function() {
-  stopTimer();
+stopButton.onclick = async function() {
+  await stopTimer();
   resetUI();
 };
-
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && timer && keepAwakeMethod === 'wake-lock' && !wakeLockSentinel) {
-    requestScreenWakeLock();
-  }
-});
 
 resetUI();
 updateReps();
