@@ -12,7 +12,7 @@ const repIncrement = document.getElementById('rep-increment');
 const repDecrement = document.getElementById('rep-decrement');
 const repsCountDisplay = document.getElementById('reps-count');
 const keepAwakeDisplay = document.getElementById('keep-awake-status');
-// Very low, effectively silent signal values used for iOS keep-awake fallback.
+// 20Hz and ultra-low gain keep the signal effectively inaudible while keeping the audio context active.
 const SILENT_GAIN_LEVEL = 0.00001;
 const SILENT_FREQUENCY_HZ = 20;
 
@@ -214,7 +214,7 @@ function nextRoundOrFinish() {
     setStatus('Workout Complete!');
     timerDisplay.textContent = '00:00';
     stopTimer().catch((error) => {
-      console.warn('Cleanup issue after workout completion:', error);
+      console.warn('Failed to disable keep-awake after workout completion:', error);
     });
   } else {
     const wMin = parseInt(workMin.value, 10);

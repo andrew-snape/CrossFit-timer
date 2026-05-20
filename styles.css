@@ -7,9 +7,12 @@ body {
   color: #333;
   text-align: center;
   min-height: 100vh;
-  /* Prefer dynamic viewport height on modern mobile browsers to avoid UI chrome overlap. */
-  min-height: 100dvh;
   -webkit-text-size-adjust: 100%;
+}
+@supports (height: 100dvh) {
+  body {
+    min-height: 100dvh;
+  }
 }
 main {
   padding: 0 12px 16px;
