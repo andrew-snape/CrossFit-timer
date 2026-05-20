@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
   <title>CrossFit Timer</title>
   <link rel="stylesheet" href="/CrossFit-timer/styles.css?v=2.1">
   <meta name="theme-color" content="#000000">
   <link rel="manifest" href="/CrossFit-timer/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CrossFit Timer">
   <link rel="apple-touch-icon" href="/CrossFit-timer/icon-192.png">
 </head>
 <body>
@@ -138,6 +139,7 @@
         <button id="stop" role="button" aria-label="Stop Timer" disabled>Stop Timer</button>
         <h2 id="timer" aria-live="polite">00:00</h2>
         <h3 id="status" aria-live="polite"></h3>
+        <p id="keep-awake-status" aria-live="polite"></p>
       </div>
       <div class="rep-buttons">
         <button id="rep-decrement" class="large-button" aria-label="Decrement Rep">-1 Rep</button>

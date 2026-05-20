@@ -11,6 +11,7 @@ const roundsInput = document.getElementById('rounds');
 const repIncrement = document.getElementById('rep-increment');
 const repDecrement = document.getElementById('rep-decrement');
 const repsCountDisplay = document.getElementById('reps-count');
+const keepAwakeDisplay = document.getElementById('keep-awake-status');
 
 let timer = null;
 let round = 1;
@@ -18,6 +19,11 @@ let isWorking = true;
 let timeLeft = 0;
 let totalRounds = 1;
 let reps = 0;
+let wakeLockSentinel = null;
+let audioContext = null;
+let silentOscillator = null;
+let silentGain = null;
+let keepAwakeMethod = 'none';
 
 // Rep counting
 function updateReps() {
@@ -34,6 +40,96 @@ function formatTime(seconds) {
 function setStatus(message) {
   statusDisplay.textContent = message;
 }
+function setKeepAwakeStatus(message) {
+  keepAwakeDisplay.textContent = message;
+}
+
+async function requestScreenWakeLock() {
+  if (!('wakeLock' in navigator)) return false;
+  try {
+    wakeLockSentinel = await navigator.wakeLock.request('screen');
+    keepAwakeMethod = 'wake-lock';
+    setKeepAwakeStatus('Screen awake mode: on');
+    wakeLockSentinel.addEventListener('release', () => {
+      wakeLockSentinel = null;
+      if (timer && document.visibilityState === 'visible') {
+        requestScreenWakeLock();
+      }
+    });
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+function enableAudioKeepAwakeFallback() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return false;
+  try {
+    if (!audioContext) {
+      audioContext = new AudioContextClass();
+    }
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+    if (!silentOscillator) {
+      silentGain = audioContext.createGain();
+      silentGain.gain.value = 0.00001;
+      silentOscillator = audioContext.createOscillator();
+      silentOscillator.frequency.value = 20;
+      silentOscillator.connect(silentGain);
+      silentGain.connect(audioContext.destination);
+      silentOscillator.start();
+    }
+    keepAwakeMethod = 'audio-fallback';
+    setKeepAwakeStatus('Screen awake mode: fallback active');
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+async function enableKeepAwake() {
+  const wakeLockActive = await requestScreenWakeLock();
+  if (!wakeLockActive) {
+    const fallbackActive = enableAudioKeepAwakeFallback();
+    if (!fallbackActive) {
+      keepAwakeMethod = 'none';
+      setKeepAwakeStatus('Screen awake mode: not supported');
+    }
+  }
+}
+
+async function disableKeepAwake() {
+  if (wakeLockSentinel) {
+    try {
+      await wakeLockSentinel.release();
+    } catch (error) {
+      // no-op
+    }
+    wakeLockSentinel = null;
+  }
+  if (silentOscillator) {
+    try {
+      silentOscillator.stop();
+    } catch (error) {
+      // no-op
+    }
+    silentOscillator.disconnect();
+    silentOscillator = null;
+  }
+  if (silentGain) {
+    silentGain.disconnect();
+    silentGain = null;
+  }
+  if (audioContext) {
+    audioContext.close().catch(() => undefined);
+    audioContext = null;
+  }
+  keepAwakeMethod = 'none';
+  setKeepAwakeStatus('');
+}
+
 function resetUI() {
   timerDisplay.textContent = '00:00';
   setStatus('');
@@ -42,8 +138,9 @@ function resetUI() {
   timeLeft = 0;
   startButton.disabled = false;
   stopButton.disabled = true;
+  setKeepAwakeStatus('');
 }
-startButton.onclick = function() {
+startButton.onclick = async function() {
   if (timer) return; // prevent multiple timers
   const wMin = parseInt(workMin.value, 10);
   const wSec = parseInt(workSec.value, 10);
@@ -60,6 +157,7 @@ startButton.onclick = function() {
   timeLeft = wMin * 60 + wSec;
   setStatus(`Round ${round}/${totalRounds}: Work!`);
   timerDisplay.textContent = formatTime(timeLeft);
+  await enableKeepAwake();
   timer = setInterval(() => {
     if (timeLeft > 0) {
       timeLeft--;
@@ -98,11 +196,19 @@ function stopTimer() {
   timer = null;
   startButton.disabled = false;
   stopButton.disabled = true;
+  disableKeepAwake();
 }
 stopButton.onclick = function() {
   stopTimer();
   resetUI();
 };
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && timer && keepAwakeMethod === 'wake-lock' && !wakeLockSentinel) {
+    requestScreenWakeLock();
+  }
+});
+
 resetUI();
 updateReps();
 // PWA: Register service worker if available
