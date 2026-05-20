@@ -12,6 +12,8 @@ const repIncrement = document.getElementById('rep-increment');
 const repDecrement = document.getElementById('rep-decrement');
 const repsCountDisplay = document.getElementById('reps-count');
 const keepAwakeDisplay = document.getElementById('keep-awake-status');
+const SILENT_GAIN_LEVEL = 0.00001;
+const SILENT_FREQUENCY_HZ = 20;
 
 let timer = null;
 let round = 1;
@@ -75,9 +77,9 @@ function enableAudioKeepAwakeFallback() {
     }
     if (!silentOscillator) {
       silentGain = audioContext.createGain();
-      silentGain.gain.value = 0.00001;
+      silentGain.gain.value = SILENT_GAIN_LEVEL;
       silentOscillator = audioContext.createOscillator();
-      silentOscillator.frequency.value = 20;
+      silentOscillator.frequency.value = SILENT_FREQUENCY_HZ;
       silentOscillator.connect(silentGain);
       silentGain.connect(audioContext.destination);
       silentOscillator.start();
