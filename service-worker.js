@@ -1,5 +1,5 @@
 // Service Worker for CrossFit Timer
-const CACHE_NAME = 'crossfit-timer-v2';
+const CACHE_NAME = 'crossfit-timer-v3';
 const urlsToCache = [
   '/CrossFit-timer/',
   '/CrossFit-timer/index.html',
